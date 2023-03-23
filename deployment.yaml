@@ -1,0 +1,44 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: qcf
+  namespace: fabiand
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: qcf
+  template:
+    metadata:
+      labels:
+        app: qcf
+    spec:
+      volumes:
+        - name: q
+          emptyDir:
+            sizeLimit: 2Gi
+      containers:
+        - resources:
+            limits:
+              memory: 2Gi
+          stdin: true
+          name: container
+          env:
+            - name: WITH_FILE
+              value: 'true'
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: q
+              mountPath: /cache
+          tty: true
+          image: quay.io/fdeutsch/qcf
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      securityContext: {}
+      schedulerName: default-scheduler
+  strategy:
+    type: Recreate
+  revisionHistoryLimit: 10
+  progressDeadlineSeconds: 600
+status: {}
